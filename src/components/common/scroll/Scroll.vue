@@ -40,7 +40,7 @@ export default {
       probeType:this.probeType,
       pullUpLoad:this.pullUpLoad
     })
-    //监听滚动事件
+    //probeType为true时监听滚动事件,否则只能滚动,无法监听
     this.scroll.on('scroll',position=>{
       //将位置信息传给父组件
       this.$emit('scroll',position)

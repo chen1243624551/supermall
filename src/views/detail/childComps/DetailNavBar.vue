@@ -24,6 +24,12 @@ export default {
   components:{
     NavBar
   },
+  props:{
+    emitIndex:{
+      type:Number,
+      default:0
+    }
+  },
   data(){
     return {
       titles:['商品','参数','评论','推荐'],
@@ -40,6 +46,11 @@ export default {
       //回到上一次路由
       this.$router.go(-1);
       // this.$router.back()
+    }
+  },
+  watch:{
+    emitIndex(){
+      this.currentindex = this.emitIndex
     }
   }
 }

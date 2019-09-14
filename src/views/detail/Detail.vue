@@ -1,7 +1,11 @@
 <template lang="html">
   <div id="detail">
-    <detail-nav-bar class="detail-nav-bar" @titleClick="titleClick"></detail-nav-bar>
-    <scroll class="detail-scroll" ref="scroll">
+    <detail-nav-bar class="detail-nav-bar"
+                    @titleClick="titleClick"
+                    :emit-index="emitIndex"></detail-nav-bar>
+    <scroll class="detail-scroll" ref="scroll"
+            @scroll="contentScroll"
+            :probe-type="3">
       <detail-swiper :top-image="topImage"></detail-swiper>
       <detail-base-info :goods="goods"></detail-base-info>
       <detail-shop-info :shopInfo="shopInfo"></detail-shop-info>
@@ -37,6 +41,8 @@
         </ul>
       </div>
     </scroll>
+    <detail-bottom-bar @addToCart="addToCart"></detail-bottom-bar>
+    <back-top v-if="isShowBackTop" @click.native="backClick"></back-top>
   </div>
 </template>
 
@@ -67,7 +73,12 @@ import GoodsList from '../../components/content/goods/GoodsList'
 import {debounce} from '../../components/common/utils'
 
 //混入函数
-import {itemListenerMixin} from '../../components/common/mixins'
+import {itemListenerMixin,backTopMixin} from '../../components/common/mixins'
+//底部工具栏
+import DetailBottomBar from './childComps/DetailBottomBar'
+//回到顶部导航
+import BackTop from '../../components/content/backTop/BackTop'
+import {BACK_POSITION} from '../../components/common/const'
 export default {
   name:'Detail',
   components:{
@@ -79,9 +90,11 @@ export default {
     DetailGoodsInfo,
     DetailParamsInfo,
     DetailCommentInfo,
-    GoodsList
+    GoodsList,
+    DetailBottomBar,
+    BackTop
   },
-  mixins:[itemListenerMixin],
+  mixins:[itemListenerMixin,backTopMixin],
   data(){
     return{
       iid:null,
@@ -97,7 +110,9 @@ export default {
       recommends:[],
       // imageListener:null
       navBarItemTopYs:[],
-      getNavBarItemTops:null
+      getNavBarItemTops:null,
+      scrollY:0,
+      emitIndex:0
     }
   },
   //初始化data就开始请求数据
@@ -153,8 +168,7 @@ export default {
       // console.log(this.navBarItemTopYs);
     },
     titleClick(index){
-      // console.log(this.navBarItemTopYs);
-      console.log(this.navBarItemTopYs);
+      // console.log(this.navBarItemTopYs);console.log(this.navBarItemTopYs);
       //在这里实现滚动不可取,因为有大图的话加载慢,此时offsetTop不是正确的值
       // switch (index) {
       //   case 1:
@@ -171,6 +185,34 @@ export default {
       // }
       // this.$refs.scroll.scrollTo(0,-this.$refs.params.$el.offsetTop,200)
       this.$refs.scroll.scrollTo(0,-this.navBarItemTopYs[index],200)
+
+    },
+    contentScroll(position){
+      this.scrollY = -position.y;
+      //判断BackTop是否显示
+      this.isShowBackTop=(-position.y)>BACK_POSITION
+
+      //得到的下标是字符串类型.所以要转化
+      for (let num in this.navBarItemTopYs) {
+        num = parseInt(num);
+        if (num+1<this.navBarItemTopYs.lenght) {
+          //this.emitIndex!==num防止赋值过于频繁,如果当前this.emitIndex==num就无需再赋值
+          if ((this.emitIndex!==num)&&this.scrollY >= this.navBarItemTopYs[num]&&this.scrollY < this.navBarItemTopYs[num+1]) {
+              this.emitIndex=num;
+              console.log(this.emitIndex);
+          }
+        }else {
+          if (this.scrollY>=this.navBarItemTopYs[num]) {
+            this.emitIndex=num;
+          }
+        }
+      }
+    },
+    addToCart(){
+      //将购物车需要的信息加入购物车
+      const product = {}
+      product.image = this.topImage[0] //去除轮播图中的一张图片
+      product.title = this.goodsInfo.title;
     }
   },
   mounted(){
@@ -208,7 +250,7 @@ export default {
     top: 44px;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: 55px;
     overflow: hidden;
   }
 </style>

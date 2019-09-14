@@ -21,3 +21,20 @@ export const itemListenerMixin = {
     console.log("混入");
   }
 }
+
+export const backTopMixin={
+  data(){
+    return{
+      isShowBackTop:false,
+    }
+  },
+  methods:{
+    backClick(){
+      //获取子组件,并与之通信
+      //第一个scroll是子组件的别名,通过this.$refs.scroll获取子组件,
+      //第二个scroll是子组件中定义的一个属性,该属性是一个BScroll对象
+      //通过这个对象可以调用scrollTo()调整滚动的位置,第三个参数是回到顶部的时间
+      this.$refs.scroll.scrollTo(0,0,500)
+    }
+  }
+}

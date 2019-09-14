@@ -48,10 +48,12 @@ import BackTop from '../../components/content/backTop/BackTop'
 //工具的引用
 // import {debounce} from '../../components/common/utils'
 //混入函数
-import {itemListenerMixin} from '../../components/common/mixins'
+import {itemListenerMixin,backTopMixin} from '../../components/common/mixins'
 
 //网络请求
 import {getHomeMultidata,getHomeGoods} from '../../network/home'
+
+import {BACK_POSITION} from '../../components/common/const'
 
 export default {
   name:"Home",
@@ -65,7 +67,7 @@ export default {
     BackTop,
     HomeSwiper
   },
-  mixins:[itemListenerMixin],
+  mixins:[itemListenerMixin,backTopMixin],
   data(){
     return {
       //保存从服务器端获取的轮播图数据
@@ -173,17 +175,17 @@ export default {
       this.$refs.tabControl1.currentindex = index;
       this.$refs.tabControl2.currentindex = index;
     },
-    backClick(){
-      //获取子组件,并与之通信
-      //第一个scroll是子组件的别名,通过this.$refs.scroll获取子组件,
-      //第二个scroll是子组件中定义的一个属性,该属性是一个BScroll对象
-      //通过这个对象可以调用scrollTo()调整滚动的位置,第三个参数是回到顶部的时间
-      this.$refs.scroll.scrollTo(0,0,500)
-    },
+    // backClick(){
+    //   //获取子组件,并与之通信
+    //   //第一个scroll是子组件的别名,通过this.$refs.scroll获取子组件,
+    //   //第二个scroll是子组件中定义的一个属性,该属性是一个BScroll对象
+    //   //通过这个对象可以调用scrollTo()调整滚动的位置,第三个参数是回到顶部的时间
+    //   this.$refs.scroll.scrollTo(0,0,500)
+    // },
     //监听滚动事件
     contentBack(position){
       //判断BackTop是否显示
-      this.isShowBackTop=(-position.y)>1000
+      this.isShowBackTop=(-position.y)>BACK_POSITION
 
       //决定tabControl是否吸顶
       this.isTabFixed = (-position.y)>this.tabOffsetTop
