@@ -66,7 +66,6 @@ export default {
       // console.log(this.scroll.y);
     },
     getScrollY(){
-      console.log(this.scroll);
       return this.scroll?this.scroll.y:0
     }
   }

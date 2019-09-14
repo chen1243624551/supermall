@@ -16,30 +16,6 @@
       </detail-params-info>
       <detail-comment-info :commentInfo="commentInfo" ref="comment"></detail-comment-info>
       <goods-list :goods="recommends" ref="recommends"></goods-list>
-      <div class="">
-        <ul>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-          <li>hhh</li>
-        </ul>
-      </div>
     </scroll>
     <detail-bottom-bar @addToCart="addToCart"></detail-bottom-bar>
     <back-top v-if="isShowBackTop" @click.native="backClick"></back-top>
@@ -132,6 +108,7 @@ export default {
 
       //创建类实例,保存商品信息
       this.goods = new GoodsInfo(data.itemInfo,data.columns,data.shopInfo.services)
+      console.log(this.goods);
 
       //创建店铺信息
       this.shopInfo = new Shop(data.shopInfo)
@@ -158,7 +135,15 @@ export default {
     })
     getRecommend().then(res=>{
       this.recommends = res.data.list;
-    })
+    }),
+    //初始化完就调用防抖函数,减少导航栏中各项的offsetTop的重计算
+    this.getNavBarItemTops = debounce(()=>{
+      this.navBarItemTopYs=[]
+      this.navBarItemTopYs.push(0)
+      this.navBarItemTopYs.push(this.$refs.params.$el.offsetTop)
+      this.navBarItemTopYs.push(this.$refs.comment.$el.offsetTop)
+      this.navBarItemTopYs.push(this.$refs.recommends.$el.offsetTop)
+    },1000)
   },
   methods:{
     imgLoad(){
@@ -211,19 +196,19 @@ export default {
     addToCart(){
       //将购物车需要的信息加入购物车
       const product = {}
-      product.image = this.topImage[0] //去除轮播图中的一张图片
-      product.title = this.goodsInfo.title;
+      product.image = this.topImage[0] //获取轮播图中的一张图片
+      product.title = this.goods.title;
+      product.desc = this.goods.desc;
+      product.price = this.goods.realPrice;
+      product.iid = this.iid;
+      //将商品加入购物车
+      // this.$state.cartList.push(product)  修改vuex中存储的变量要用它自身的mutations属性修改
+      //同一个商品添加一次记数据就可以
+      this.$store.dispatch('addCart',product)
     }
   },
   mounted(){
-    //初始化完就调用防抖函数,减少导航栏中各项的offsetTop的重计算
-    this.getNavBarItemTops = debounce(()=>{
-      this.navBarItemTopYs=[]
-      this.navBarItemTopYs.push(0)
-      this.navBarItemTopYs.push(this.$refs.params.$el.offsetTop)
-      this.navBarItemTopYs.push(this.$refs.comment.$el.offsetTop)
-      this.navBarItemTopYs.push(this.$refs.recommends.$el.offsetTop)
-    },1000)
+
   },
   destroyed(){
     //离开页面时关闭图片加载完后调用的事件
